@@ -1,0 +1,229 @@
+ci:
+  autoupdate_schedule: monthly
+
+repos:
+- repo: https://github.com/asottile/pyupgrade
+  rev: v3.15.0
+  hooks:
+  - id: pyupgrade
+    args: [--py36-plus]
+
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.5.0
+  hooks:
+  - id: check-ast
+  - id: check-added-large-files
+    args: [--maxkb=99000]
+  - id: check-case-conflict
+  - id: check-docstring-first
+  - id: check-json
+  - id: check-merge-conflict
+  - id: check-symlinks
+  - id: check-toml
+  - id: check-xml
+  - id: check-yaml
+  - id: debug-statements
+  - id: detect-private-key
+  - id: fix-byte-order-marker
+  - id: forbid-submodules
+  - id: mixed-line-ending
+  - id: trailing-whitespace
+    args: [--markdown-linebreak-ext=md]
+  - id: sort-simple-yaml
+  - id: check-yaml
+  - id: debug-statements
+  - id: requirements-txt-fixer
+
+- repo: https://github.com/dhruvmanila/remove-print-statements
+  rev: v0.5.2   # Replace with latest tag on GitHub
+  hooks:
+  - id: remove-print-statements
+    types: [python]
+    args: [--verbose]       # Show all the print statements to be removed
+
+- repo: https://github.com/PyCQA/autoflake
+  rev: v2.2.1
+  hooks:
+  - id: autoflake
+    types: [python]
+    args: [--remove-unused-variables, --remove-all-unused-imports]
+
+- repo: https://github.com/pycqa/isort
+  rev: 5.12.0
+  hooks:
+  - id: isort
+    name: isort (python)
+    types: [python]
+    args: [--profile, black]
+
+- repo: https://github.com/psf/black
+  rev: 23.9.1
+  hooks:
+  - id: black
+
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  rev: v0.1.0
+  hooks:
+  - id: ruff
+    types: [python]
+    args: [--fix, --exit-non-zero-on-fix, --show-fixes]
+
+- repo: https://github.com/pre-commit/mirrors-mypy
+  rev: v1.6.0
+  hooks:
+  - id: mypy
+    args: [--ignore-missing-imports]
+    pass_filenames: true
+    types: [python]
+    additional_dependencies:
+    - types-requests
+    - types-certifi
+    - types-PyYAML
+    - pytest
+
+  # Using this mirror lets us use mypyc-compiled black, which is about 2x faster
+- repo: https://github.com/psf/black-pre-commit-mirror
+  rev: 23.9.1
+  hooks:
+  - id: black-jupyter
+- repo: https://github.com/iterative/dvc
+  rev: 3.26.2
+  hooks:
+  - id: dvc-pre-commit
+    additional_dependencies:
+    - .[all]
+    language_version: python3
+    stages:
+    - commit
+  - id: dvc-pre-push
+    additional_dependencies:
+    - .[all]
+    language_version: python3
+    stages:
+    - push
+  - id: dvc-post-checkout
+    additional_dependencies:
+    - .[all]
+    language_version: python3
+    stages:
+    - post-checkout
+    always_run: true
+
+- repo: https://github.com/antonbabenko/pre-commit-terraform
+  rev: v1.83.5 # Get the latest from: https://github.com/antonbabenko/pre-commit-terraform/releases
+  hooks:
+  - id: terraform_tflint
+  - id: terraform_tfsec
+    files: ^prd-infra/
+  - id: terraform_fmt
+  - id: terraform_docs
+    args:
+    - --hook-config=--path-to-file=README.md            # Valid UNIX path. I.e. ../TFDOC.md or docs/README.md etc.
+    - --hook-config=--add-to-existing-file=true         # Boolean. true or false
+    - --hook-config=--create-file-if-not-exist=true     # Boolean. true or false
+  - id: infracost_breakdown
+    args:
+    - --args=--path=./env/dev
+    - --hook-config='.totalHourlyCost|tonumber > 0.1'
+    - --hook-config='.totalHourlyCost|tonumber > 1'
+    - --hook-config='.projects[].diff.totalMonthlyCost|tonumber != 10000'
+    - --hook-config='.currency == "USD"'
+    verbose: true   # Always show costs
+  - id: terrascan
+    args:
+    - --args=--non-recursive     # avoids scan errors on subdirectories without Terraform config files
+    - --args=--policy-type=aws
+    - --args=--entry=terraform
+  - id: tfupdate
+    name: Autoupdate AWS provider versions
+    args:
+    - --args=provider aws     # Will be pined to latest version
+
+
+- repo: https://github.com/pappasam/toml-sort
+  rev: v0.23.1
+  hooks:
+  - id: toml-sort
+    name: toml-sort
+    entry: toml-sort
+    args: [--check]
+    language: python
+    types: [toml]
+  - id: toml-sort-fix
+    name: toml-sort-fix
+    entry: toml-sort
+    args: [--in-place]
+    language: python
+    types: [toml]
+
+- repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
+  rev: v2.11.0
+  hooks:
+  - id: pretty-format-toml
+    name: Pretty format TOML
+    description: This hook sets a standard for formatting TOML files.
+    entry: pretty-format-toml
+    language: python
+    types: [toml]
+    minimum_pre_commit_version: '1'
+    args: [--autofix]
+  - id: pretty-format-yaml
+    name: Pretty format YAML
+    description: This hook sets a standard for formatting YAML files.
+    entry: pretty-format-yaml
+    language: python
+    types: [yaml]
+    minimum_pre_commit_version: '1'
+    args: [--autofix, --indent, '2']
+
+- repo: https://github.com/pryorda/dockerfilelint-precommit-hooks
+  rev: v0.1.0
+  hooks:
+  - id: dockerfilelint
+    stages: [commit]
+
+- repo: https://github.com/koalaman/shellcheck-precommit
+  rev: v0.9.0
+  hooks:
+  - id: shellcheck
+    args: [--shell=bash]    # Adjust this if you're using a different shell
+
+- repo: https://github.com/scop/pre-commit-shfmt
+  rev: v3.7.0-1
+  hooks:
+    # Choose one of:
+  - id: shfmt           # native (requires/installs Go to build)
+
+- repo: local
+  hooks:
+  - id: pylint
+    name: pylint
+    entry: pylint
+    language: system
+    exclude: '[a-zA-Z]*/(migrations)/(.)*'
+    types: [python]
+    args: [-rn, -sn, --load-plugins=pylint_django]
+
+- repo: https://github.com/Riverside-Healthcare/djLint
+  rev: v1.34.0
+  hooks:
+  - id: djlint-django
+
+
+- repo: https://github.com/pycqa/bandit
+  rev: 1.7.5
+  hooks:
+  - id: bandit
+    args: [-iii, -ll]
+
+- repo: https://github.com/pycqa/flake8
+  rev: 6.1.0
+  hooks:
+  - id: flake8
+    additional_dependencies: [flake8-bugbear, flake8-comprehensions, flake8-mutable, flake8-print, flake8-simplify]
+
+- repo: https://github.com/adamchainz/django-upgrade
+  rev: 1.15.0    # replace with latest tag on GitHub
+  hooks:
+  - id: django-upgrade
+    args: [--target-version, '4.2']       # Replace with Django version

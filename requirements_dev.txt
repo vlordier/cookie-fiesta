@@ -1,0 +1,6 @@
+django-upgrade
+language-formatters-pre-commit-hooks
+pre-commit-hooks
+pylint
+pylint-django
+toml-sort

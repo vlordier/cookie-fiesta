@@ -1,0 +1,55 @@
+[project]
+authors = [
+  {name = "Vincent Lordier", email = "vlordier@users.noreply.github.com"}
+]
+dependencies = [
+  "pre-commit>=3.3.3"
+]
+description = ""
+license = {text = "MIT"}
+name = "App cookie cutter"
+readme = "README.md"
+requires-python = ">=3.9"
+version = "0.1"
+
+[tool.black]
+line-length = 119
+
+[tool.djlint]
+ignore = "H031"
+profile = "django"
+
+[tool.isort]
+profile = "black"
+
+[tool.pylint.BASIC]
+good-names = "_,i,e,setUp,tearDown,maxDiff"
+
+[tool.pylint.FORMAT]
+max-line-length = "88"
+
+[tool.pylint.MESSAGE_CONTROL]
+disable = """
+    line-too-long,
+    abstract-method,
+    no-member,
+"""
+enable = "useless-suppression"
+
+[tool.pylint.REPORTS]
+reports = "no"
+
+[tool.pytest.ini_options]
+testpaths = [
+  "tests"
+]
+
+[tool.ruff]
+ignore = ["E402"]
+line-length = 119
+
+[tool.ruff.isort]
+lines-after-imports = 2
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["E402", "F401", "F403", "F811"]
